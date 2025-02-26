@@ -4,10 +4,16 @@ import axios from 'axios';
 
 async function run() {
   try {
+    // Ensure this action only runs for pull_request events
+    if (github.context.eventName !== 'pull_request') {
+      core.setFailed('This action only runs for pull_request events.');
+      return;
+    }
+
     // Get inputs
     const token = core.getInput('github-token', { required: true });
     const repo = process.env.GITHUB_REPOSITORY;
-    let baseBranch = core.getInput('base-branch') || 'main';
+    const baseBranch = github.context.payload.pull_request.base.ref;
 
     if (!token || !repo) {
       core.setFailed('Missing required environment variables: GITHUB_TOKEN or GITHUB_REPOSITORY');
@@ -40,8 +46,8 @@ async function run() {
     core.info(`  Created at: ${latestRun.created_at}`);
 
     const isGreen = latestRun.conclusion === 'success';
-    core.info(`Main branch status: ${isGreen ? 'GREEN' : 'RED'}`);
-    core.setOutput('is-main-green', isGreen.toString());
+    core.info(`Base branch status: ${isGreen ? 'GREEN' : 'RED'}`);
+    core.setOutput('is-base-green', isGreen.toString());
 
     if (!isGreen) {
       core.setFailed(`⛔ Cannot proceed: ${baseBranch} branch is RED`);
