@@ -1,5 +1,5 @@
 {
-  "name": "main-branch-status-check",
+  "name": "base-branch-status",
   "version": "1.0.0",
   "description": "GitHub Action to check if main branch is green before allowing PR to proceed",
   "main": "index.js",
@@ -13,7 +13,7 @@
     "status",
     "check"
   ],
-  "author": "Your Name",
+  "author": "Debuide Org",
   "license": "MIT",
   "dependencies": {
     "@actions/core": "1.11.0",
