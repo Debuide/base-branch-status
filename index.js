@@ -36,32 +36,42 @@ async function run() {
 
     core.info(`Checking workflow runs for ${baseBranch} branch...`);
 
-    // Fetch the latest completed workflow runs for the base branch (debug)
-    // const url = `https://api.github.com/repos/${repo}/actions/runs?branch=${baseBranch}&status=completed`;
-    // core.info(`Fetching from URL: ${url}`);  // Add URL logging
-    
-    const response = await axios.get(url, { headers });
-    const runs = response.data.workflow_runs;
+    try {
+      // First check if the branch exists
+      const branchUrl = `https://api.github.com/repos/${repo}/branches/${baseBranch}`;
+      await axios.get(branchUrl, { headers });
+      
+      // If branch exists, check workflow runs
+      const runsUrl = `https://api.github.com/repos/${repo}/actions/runs?branch=${baseBranch}&status=completed`;
+      const response = await axios.get(runsUrl, { headers });
+      const runs = response.data.workflow_runs;
 
-    if (!runs || runs.length === 0) {
-      core.setFailed(`No workflow runs found for ${baseBranch} branch`);
-      return;
-    }
+      if (!runs || runs.length === 0) {
+        core.setFailed(`No workflow runs found for ${baseBranch} branch`);
+        return;
+      }
 
-    // Get the most recent completed run
-    const latestRun = runs[0];
-    core.info(`Latest workflow run details:`);
-    core.info(`  Name: ${latestRun.name}`);
-    core.info(`  Status: ${latestRun.status}`);
-    core.info(`  Conclusion: ${latestRun.conclusion}`);
-    core.info(`  Created at: ${latestRun.created_at}`);
+      // Get the most recent completed run
+      const latestRun = runs[0];
+      core.info(`Latest workflow run details:`);
+      core.info(`  Name: ${latestRun.name}`);
+      core.info(`  Status: ${latestRun.status}`);
+      core.info(`  Conclusion: ${latestRun.conclusion}`);
+      core.info(`  Created at: ${latestRun.created_at}`);
 
-    const isGreen = latestRun.conclusion === 'success';
-    core.info(`Base branch status: ${isGreen ? 'GREEN' : 'RED'}`);
-    core.setOutput('is-base-green', isGreen.toString());
+      const isGreen = latestRun.conclusion === 'success';
+      core.info(`Base branch status: ${isGreen ? 'GREEN' : 'RED'}`);
+      core.setOutput('is-base-green', isGreen.toString());
 
-    if (!isGreen) {
-      core.setFailed(`⛔ Cannot proceed: ${baseBranch} branch is RED`);
+      if (!isGreen) {
+        core.setFailed(`⛔ Cannot proceed: ${baseBranch} branch is RED`);
+      }
+    } catch (error) {
+      if (error.response && error.response.status === 404) {
+        core.setFailed(`⛔ Branch '${baseBranch}' not found in repository`);
+        return;
+      }
+      throw error; // Re-throw other errors
     }
   } catch (error) {
     core.setFailed(`Action failed with error: ${error.message}`);
