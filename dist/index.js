@@ -36154,9 +36154,15 @@ async function run() {
     const token = core.getInput('github-token', { required: true });
     const repo = process.env.GITHUB_REPOSITORY;
     
+    // Add debug logging for input values
+    const inputBaseBranch = core.getInput('base-branch');
+    const prBaseBranch = github.context.payload.pull_request.base.ref;
+    core.info(`Input base-branch: ${inputBaseBranch}`);
+    core.info(`PR base branch: ${prBaseBranch}`);
+    
     // Get base-branch from input, if not provided use the PR's base branch
-    const baseBranch = core.getInput('base-branch') || github.context.payload.pull_request.base.ref;
-    core.info(`Using base branch: ${baseBranch}`);
+    const baseBranch = inputBaseBranch || prBaseBranch;
+    core.info(`Selected base branch for checking: ${baseBranch}`);
 
     if (!token || !repo) {
       core.setFailed('Missing required environment variables: GITHUB_TOKEN or GITHUB_REPOSITORY');
@@ -36172,6 +36178,8 @@ async function run() {
 
     // Fetch the latest completed workflow runs for the base branch
     const url = `https://api.github.com/repos/${repo}/actions/runs?branch=${baseBranch}&status=completed`;
+    core.info(`Fetching from URL: ${url}`);  // Add URL logging
+    
     const response = await lib_axios.get(url, { headers });
     const runs = response.data.workflow_runs;
 
