@@ -36,9 +36,9 @@ async function run() {
 
     core.info(`Checking workflow runs for ${baseBranch} branch...`);
 
-    // Fetch the latest completed workflow runs for the base branch
-    const url = `https://api.github.com/repos/${repo}/actions/runs?branch=${baseBranch}&status=completed`;
-    core.info(`Fetching from URL: ${url}`);  // Add URL logging
+    // Fetch the latest completed workflow runs for the base branch (debug)
+    // const url = `https://api.github.com/repos/${repo}/actions/runs?branch=${baseBranch}&status=completed`;
+    // core.info(`Fetching from URL: ${url}`);  // Add URL logging
     
     const response = await axios.get(url, { headers });
     const runs = response.data.workflow_runs;

@@ -488,6 +488,7 @@ Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.prepareKeyValueMessage = exports.issueFileCommand = void 0;
 // We use any as a valid input type
 /* eslint-disable @typescript-eslint/no-explicit-any */
+const crypto = __importStar(__nccwpck_require__(6982));
 const fs = __importStar(__nccwpck_require__(9896));
 const os = __importStar(__nccwpck_require__(857));
 const utils_1 = __nccwpck_require__(6431);
@@ -40439,9 +40440,9 @@ async function run() {
 
     core.info(`Checking workflow runs for ${baseBranch} branch...`);
 
-    // Fetch the latest completed workflow runs for the base branch
-    const url = `https://api.github.com/repos/${repo}/actions/runs?branch=${baseBranch}&status=completed`;
-    core.info(`Fetching from URL: ${url}`);  // Add URL logging
+    // Fetch the latest completed workflow runs for the base branch (debug)
+    // const url = `https://api.github.com/repos/${repo}/actions/runs?branch=${baseBranch}&status=completed`;
+    // core.info(`Fetching from URL: ${url}`);  // Add URL logging
     
     const response = await lib_axios.get(url, { headers });
     const runs = response.data.workflow_runs;
