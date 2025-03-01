@@ -36153,7 +36153,10 @@ async function run() {
     // Get inputs
     const token = core.getInput('github-token', { required: true });
     const repo = process.env.GITHUB_REPOSITORY;
-    const baseBranch = github.context.payload.pull_request.base.ref;
+    
+    // Get base-branch from input, if not provided use the PR's base branch
+    const baseBranch = core.getInput('base-branch') || github.context.payload.pull_request.base.ref;
+    core.info(`Using base branch: ${baseBranch}`);
 
     if (!token || !repo) {
       core.setFailed('Missing required environment variables: GITHUB_TOKEN or GITHUB_REPOSITORY');
